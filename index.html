@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Frequency–Wavelength–Energy Converter</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 30px 15px;
+      font-family: Arial, sans-serif;
+      background: #f3f6fa;
+      color: #172033;
+    }
+
+    .converter {
+      max-width: 680px;
+      margin: auto;
+      padding: 28px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.65rem;
+      margin-top: 0;
+    }
+
+    .instruction {
+      color: #536076;
+      line-height: 1.5;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 150px 1fr 140px;
+      gap: 10px;
+      align-items: center;
+      margin: 18px 0;
+    }
+
+    input, select, button {
+      box-sizing: border-box;
+      padding: 10px;
+      font-size: 1rem;
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid #bcc5d3;
+      border-radius: 6px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .calculate {
+      background: #1769aa;
+      color: white;
+    }
+
+    .clear {
+      background: #e6eaf0;
+      color: #172033;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    #message {
+      min-height: 22px;
+      margin-top: 18px;
+      text-align: center;
+      color: #b42318;
+    }
+
+    @media (max-width: 600px) {
+      .row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="converter">
+    <h1>Frequency–Wavelength–Energy Converter</h1>
+
+    <p class="instruction">
+      Enter a value in exactly one box, select its unit, and press
+      <strong>Calculate</strong>. The other two quantities will be calculated.
+    </p>
+
+    <div class="row">
+      <label for="frequency">Frequency</label>
+      <input id="frequency" type="number" step="any" placeholder="Enter frequency">
+      <select id="frequencyUnit">
+        <option value="Hz">Hz</option>
+        <option value="MHz">MHz</option>
+        <option value="THz">THz</option>
+        <option value="cm-1">cm⁻¹</option>
+        <option value="rad-s">rad s⁻¹</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label for="wavelength">Wavelength</label>
+      <input id="wavelength" type="number" step="any" placeholder="Enter wavelength">
+      <select id="wavelengthUnit">
+        <option value="m">m</option>
+        <option value="nm" selected>nm</option>
+        <option value="um">μm</option>
+        <option value="angstrom">Å</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label for="energy">Energy</label>
+      <input id="energy" type="number" step="any" placeholder="Enter energy">
+      <select id="energyUnit">
+        <option value="eV">eV</option>
+        <option value="kJmol">kJ mol⁻¹</option>
+        <option value="kcalmol">kcal mol⁻¹</option>
+        <option value="hartree">Hartree</option>
+      </select>
+    </div>
+
+    <div class="buttons">
+      <button class="calculate" onclick="calculate()">Calculate</button>
+      <button class="clear" onclick="clearAll()">Clear</button>
+    </div>
+
+    <div id="message"></div>
+  </main>
+
+  <script>
+    const c = 299792458;                 // speed of light, m s^-1
+    const h = 6.62607015e-34;            // Planck constant, J s
+    const NA = 6.02214076e23;             // Avogadro constant, mol^-1
+    const electronVolt = 1.602176634e-19; // J
+    const hartree = 4.3597447222060e-18;  // J
+
+    function frequencyToHz(value, unit) {
+      if (unit === "Hz") return value;
+      if (unit === "MHz") return value * 1e6;
+      if (unit === "THz") return value * 1e12;
+      if (unit === "cm-1") return value * c * 100;
+      if (unit === "rad-s") return value / (2 * Math.PI);
+    }
+
+    function hzToFrequency(hz, unit) {
+      if (unit === "Hz") return hz;
+      if (unit === "MHz") return hz / 1e6;
+      if (unit === "THz") return hz / 1e12;
+      if (unit === "cm-1") return hz / (c * 100);
+      if (unit === "rad-s") return hz * 2 * Math.PI;
+    }
+
+    function wavelengthToMetres(value, unit) {
+      if (unit === "m") return value;
+      if (unit === "nm") return value * 1e-9;
+      if (unit === "um") return value * 1e-6;
+      if (unit === "angstrom") return value * 1e-10;
+    }
+
+    function metresToWavelength(metres, unit) {
+      if (unit === "m") return metres;
+      if (unit === "nm") return metres / 1e-9;
+      if (unit === "um") return metres / 1e-6;
+      if (unit === "angstrom") return metres / 1e-10;
+    }
+
+    function energyToJoules(value, unit) {
+      if (unit === "eV") return value * electronVolt;
+      if (unit === "kJmol") return value * 1000 / NA;
+      if (unit === "kcalmol") return value * 4184 / NA;
+      if (unit === "hartree") return value * hartree;
+    }
+
+    function joulesToEnergy(joules, unit) {
+      if (unit === "eV") return joules / electronVolt;
+      if (unit === "kJmol") return joules * NA / 1000;
+      if (unit === "kcalmol") return joules * NA / 4184;
+      if (unit === "hartree") return joules / hartree;
+    }
+
+    function formatNumber(value) {
+      if (!Number.isFinite(value)) return "";
+      return value.toExponential(8);
+    }
+
+    function calculate() {
+      const frequencyBox = document.getElementById("frequency");
+      const wavelengthBox = document.getElementById("wavelength");
+      const energyBox = document.getElementById("energy");
+      const message = document.getElementById("message");
+
+      const entered = [
+        frequencyBox.value !== "",
+        wavelengthBox.value !== "",
+        energyBox.value !== ""
+      ].filter(Boolean).length;
+
+      if (entered !== 1) {
+        message.textContent = "Enter a value in exactly one box.";
+        return;
+      }
+
+      let frequencyHz;
+
+      if (frequencyBox.value !== "") {
+        frequencyHz = frequencyToHz(
+          Number(frequencyBox.value),
+          document.getElementById("frequencyUnit").value
+        );
+      } else if (wavelengthBox.value !== "") {
+        const wavelengthM = wavelengthToMetres(
+          Number(wavelengthBox.value),
+          document.getElementById("wavelengthUnit").value
+        );
+        frequencyHz = c / wavelengthM;
+      } else {
+        const energyJ = energyToJoules(
+          Number(energyBox.value),
+          document.getElementById("energyUnit").value
+        );
+        frequencyHz = energyJ / h;
+      }
+
+      if (!Number.isFinite(frequencyHz) || frequencyHz <= 0) {
+        message.textContent = "Enter a positive numerical value.";
+        return;
+      }
+
+      const wavelengthM = c / frequencyHz;
+      const energyJ = h * frequencyHz;
+
+      frequencyBox.value = formatNumber(
+        hzToFrequency(
+          frequencyHz,
+          document.getElementById("frequencyUnit").value
+        )
+      );
+
+      wavelengthBox.value = formatNumber(
+        metresToWavelength(
+          wavelengthM,
+          document.getElementById("wavelengthUnit").value
+        )
+      );
+
+      energyBox.value = formatNumber(
+        joulesToEnergy(
+          energyJ,
+          document.getElementById("energyUnit").value
+        )
+      );
+
+      message.textContent = "";
+    }
+
+    function clearAll() {
+      document.getElementById("frequency").value = "";
+      document.getElementById("wavelength").value = "";
+      document.getElementById("energy").value = "";
+      document.getElementById("message").textContent = "";
+    }
+  </script>
+</body>
+</html>
